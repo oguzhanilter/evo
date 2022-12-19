@@ -79,6 +79,10 @@ def parser() -> argparse.ArgumentParser:
         action="store_true",
         help="use all pairs instead of consecutive pairs (disables plot)",
     )
+    algo_opts.add_argument(
+        "--align_start_index",
+        help="the index of the trajectory where the alignment starts, "
+        "counted from the 0 (default: all)", default=0, type=int)
 
     output_opts.add_argument(
         "-p",
@@ -205,7 +209,7 @@ def rpe(traj_ref: PosePath3D, traj_est: PosePath3D,
         all_pairs: bool = False, align: bool = False,
         correct_scale: bool = False, n_to_align: int = -1,
         align_origin: bool = False, ref_name: str = "reference",
-        est_name: str = "estimate", support_loop: bool = False) -> Result:
+        est_name: str = "estimate", support_loop: bool = False, align_start_index: int = 0) -> Result:
 
     # Align the trajectories.
     only_scale = correct_scale and not align
@@ -213,7 +217,7 @@ def rpe(traj_ref: PosePath3D, traj_est: PosePath3D,
     if align or correct_scale:
         logger.debug(SEP)
         alignment_transformation = lie_algebra.sim3(
-            *traj_est.align(traj_ref, correct_scale, only_scale, n=n_to_align))
+            *traj_est.align(traj_ref, correct_scale, only_scale, n=n_to_align, n_start=align_start_index))
     elif align_origin:
         logger.debug(SEP)
         alignment_transformation = traj_est.align_origin(traj_ref)
@@ -324,6 +328,7 @@ def run(args: argparse.Namespace) -> None:
         align_origin=args.align_origin,
         ref_name=ref_name,
         est_name=est_name,
+        align_start_index=args.align_start_index
     )
 
     if args.plot or args.save_plot or args.serialize_plot:

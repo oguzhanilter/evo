@@ -184,7 +184,7 @@ class PosePath3D(object):
 
     def align(self, traj_ref: 'PosePath3D', correct_scale: bool = False,
               correct_only_scale: bool = False,
-              n: int = -1) -> geometry.UmeyamaResult:
+              n: int = -1, n_start: int = 0) -> geometry.UmeyamaResult:
         """
         align to a reference trajectory using Umeyama alignment
         :param traj_ref: reference trajectory
@@ -205,7 +205,7 @@ class PosePath3D(object):
                                                      with_scale)
         else:
             r_a, t_a, s = geometry.umeyama_alignment(
-                self.positions_xyz[:n, :].T, traj_ref.positions_xyz[:n, :].T,
+                self.positions_xyz[n_start:n_start+n, :].T, traj_ref.positions_xyz[n_start:n_start+n, :].T,
                 with_scale)
 
         if not correct_only_scale:
